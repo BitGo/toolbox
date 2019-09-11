@@ -1,0 +1,19 @@
+#!/bin/sh
+
+export HOME="/home/$USER"
+
+id -u "$USER" &>/dev/null || \
+	useradd -m -d "/home/$USER" -s /bin/bash "$USER"
+usermod -p '*' "$USER"
+chown -R "$USER": "/home/$USER"
+
+cd "/home/$USER" || exit
+
+chpst -u "$USER" \
+	tmux -f "/home/$USER/.tmux.conf" new-session -d 'bash'
+
+pid=$(chpst -u "$USER" tmux display-message -pF '#{pid}')
+
+while kill -0 "$pid" >/dev/null 2>&1; do
+ sleep 1
+done

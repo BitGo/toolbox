@@ -1,0 +1,9 @@
+#!/bin/bash
+
+export CURRENT_USER="$1"
+
+echo "logging in as: $CURRENT_USER"
+
+# If connected via ssh and not in tmux, attach
+[[ -z "$TMUX" ]] && [ "$SSH_CONNECTION" != "" ] && \
+	tmux new-session -A -t admin -s "$CURRENT_USER" && exit
