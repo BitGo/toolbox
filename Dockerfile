@@ -57,7 +57,6 @@ COPY --from=golang /usr/local/bin/terraform-provider-helm \
 COPY --from=golang /usr/local/bin/kubectl /usr/local/bin/
 COPY --from=golang /usr/local/bin/helm /usr/local/bin/
 COPY --from=golang /usr/local/bin/tiller /usr/local/bin/
-COPY --from=golang /usr/local/bin/fixuid /usr/local/bin/
 
 ENV LANG=C.UTF-8 \
     TZ=UTC \
@@ -66,9 +65,10 @@ ENV LANG=C.UTF-8 \
     USER="admin"
 
 STOPSIGNAL SIGCONT
-
 RUN \
-  apk add --no-cache \
+  echo "http://nl.alpinelinux.org/alpine/edge/testing" >> /etc/apk/repositories \
+  && apk update \
+  && apk add --no-cache \
     runit \
     shadow \
     openssh \
@@ -77,6 +77,7 @@ RUN \
     aws-cli \
     tzdata \
     tmux \
+    vim \
   && echo "toolbox" > /etc/hostname \
   && rm -rf /tmp/* /var/cache/apk/* /etc/motd
 
