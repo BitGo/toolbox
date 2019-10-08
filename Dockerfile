@@ -64,7 +64,8 @@ ENV LANG=C.UTF-8 \
     TZ=UTC \
     TERM=xterm-256color \
     AUTHORIZED_KEYS="" \
-    USER="admin"
+    USER="admin" \
+    HOME="/home/build"
 
 STOPSIGNAL SIGCONT
 RUN \
