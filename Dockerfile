@@ -1,7 +1,7 @@
-ARG GOLANG_IMAGE_REF=sha256:84349ee862d8bafff35e0d2bfd539da565b536b4dfce654773fc21a1db2da6d7
-ARG ALPINE_IMAGE_REF=sha256:484dfd8f6ffc7237d4d91cb107dad73f4594c33eacfd0fe77c284e36bad9303d
+ARG GOLANG_IMAGE_REF=sha256:36c384d8593f8989b7a50bebf9569c9f6a43a6881baa8a248a84251d2ca17ddb
+ARG DEBIAN_IMAGE_REF=sha256:9d2b250af5748cf8fb2c7e9a14aab830c251daa3f8f3bc787bd4a3e8c586f39a
 
-FROM golang@${GOLANG_IMAGE_REF} as golang
+FROM golang:1.13.2-buster@${GOLANG_IMAGE_REF} as golang
 ARG FIXUID_GIT_REF="0ec93d22e52bde5b7326e84cb62fd26a3d20cead"
 ARG TOML_GIT_REF="3012a1dbe2e4bd1391d42b32f0577cb7bbc7f005"
 ARG OZZOCONFIG_GIT_REF="0ff174cf5aa6480026e0b40c14fd9cfb61c4abf6"
@@ -15,7 +15,7 @@ ARG TERRAFORM_HELM_GIT_REF="a8e657341b68c09f901736974aee3aeccdd38be9"
 ARG TERRAFORM_KUBERNETES_GIT_REF="56bb8e012f5f4bdd2fb906e1e6a567e3e57b46a4"
 ARG KOPS_GIT_REF="d5078612f641d89190edb39f3fedcee2548ba68f"
 
-RUN apk add bash git make
+RUN apt update && apt install -y bash git make
 
 RUN printf "\
 github.com/Masterminds/glide github.com/Masterminds/glide ${GLIDE_GIT_REF} \n\
@@ -43,17 +43,17 @@ RUN cd /go/src/k8s.io/kops \
     && cp -v /go/bin/kops /usr/local/bin/
 RUN go build -o /usr/local/bin/glide github.com/Masterminds/glide
 RUN go build -o /usr/local/bin/kubectl k8s.io/kubernetes/cmd/kubectl
+RUN go build -o /usr/local/bin/terraform github.com/hashicorp/terraform
 RUN cd /go/src/k8s.io/helm \
     && make bootstrap build \
     && cp bin/helm /usr/local/bin/ \
     && cp bin/tiller /usr/local/bin/
-RUN go build -o /usr/local/bin/terraform github.com/hashicorp/terraform
 RUN go build -o /usr/local/bin/terraform-provider-kubernetes \
     github.com/terraform-providers/terraform-provider-kubernetes
 RUN go build -o /usr/local/bin/terraform-provider-helm \
     github.com/terraform-providers/terraform-provider-helm
 
-FROM alpine@${ALPINE_IMAGE_REF}
+FROM debian:buster@${DEBIAN_IMAGE_REF}
 ARG AWS_CLI_GIT_BRANCH="1.16.242"
 ARG AWS_CLI_GIT_REF="a031cf1ea60e6a810a5f2127f2c1ea13c39f549d"
 
@@ -76,17 +76,19 @@ ENV LANG=C.UTF-8 \
 
 STOPSIGNAL SIGCONT
 RUN \
-  echo "http://nl.alpinelinux.org/alpine/edge/testing" >> /etc/apk/repositories \
-  && apk update \
-  && apk add --no-cache \
+  adduser admin \
+  && apt update \
+  && apt install -y \
     bash \
     git \
+    gnupg \
     groff \
-    openssh \
     python3 \
+    python3-pip \
     rsync \
     runit \
-    shadow \
+    runit-init \
+    ssh \
     tmux \
     tzdata \
     vim \
@@ -110,7 +112,8 @@ urllib3==1.25.5 --hash=sha256:9c6c593cb28f52075016307fc26b0a0f8e82bc7d1ff19aaaa9
   && python3 setup.py install \
   && cd / \
   && echo "toolbox" > /etc/hostname \
-  && rm -rf /tmp/* /var/cache/apk/* /etc/motd
+  && rm -rf /tmp/* /var/cache/apk/* /etc/motd \
+  && mkdir /run/sshd
 
 ADD etc/ /etc/
 ADD var/ /var/
@@ -118,4 +121,4 @@ ADD bin/ /bin/
 
 EXPOSE 22
 
-CMD ["/sbin/runit-init"]
+CMD ["/sbin/runit"]
