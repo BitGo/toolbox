@@ -93,7 +93,7 @@ RUN \
     tzdata \
     vim \
     curl \
-    bind-tools \
+    dnsutils \
   && git clone --depth 1 --branch ${AWS_CLI_GIT_BRANCH} https://github.com/aws/aws-cli.git /tmp/aws-cli \
   && git -C /tmp/aws-cli checkout ${AWS_CLI_GIT_REF} \
   && cd /tmp/aws-cli \
