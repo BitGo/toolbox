@@ -71,7 +71,7 @@ ENV LANG=C.UTF-8 \
     TZ=UTC \
     TERM=xterm-256color \
     AUTHORIZED_KEYS="" \
-    USER="admin" \
+    USER="build" \
     HOME="/home/build"
 
 STOPSIGNAL SIGCONT
@@ -92,6 +92,8 @@ RUN \
     tmux \
     tzdata \
     vim \
+    curl \
+    dnsutils \
   && git clone --depth 1 --branch ${AWS_CLI_GIT_BRANCH} https://github.com/aws/aws-cli.git /tmp/aws-cli \
   && git -C /tmp/aws-cli checkout ${AWS_CLI_GIT_REF} \
   && cd /tmp/aws-cli \
@@ -119,6 +121,7 @@ ADD etc/ /etc/
 ADD var/ /var/
 ADD bin/ /bin/
 
+WORKDIR /home/build
 EXPOSE 22
 
 CMD ["/sbin/runit"]
