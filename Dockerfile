@@ -71,8 +71,8 @@ ENV LANG=C.UTF-8 \
     TZ=UTC \
     TERM=xterm-256color \
     AUTHORIZED_KEYS="" \
-    USER="build" \
-    HOME="/home/build"
+    USER="admin" \
+    HOME="/home/admin"
 
 STOPSIGNAL SIGCONT
 RUN \
@@ -117,11 +117,11 @@ urllib3==1.25.5 --hash=sha256:9c6c593cb28f52075016307fc26b0a0f8e82bc7d1ff19aaaa9
   && rm -rf /tmp/* /var/cache/apk/* /etc/motd \
   && mkdir /run/sshd
 
-ADD etc/ /etc/
-ADD var/ /var/
-ADD bin/ /bin/
+ADD root/etc/ /etc/
+ADD root/var/ /var/
+ADD root/bin/ /bin/
 
-WORKDIR /home/build
+WORKDIR /home/admin
 EXPOSE 22
 
 CMD ["/sbin/runit"]

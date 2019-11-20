@@ -1,0 +1,12 @@
+#!/bin/bash
+set -e
+
+role="${1?}"
+fingerprint="${2?}"
+
+pubkey=$(gpg --export-ssh-key "${fingerprint}")
+
+pubkey_line="command=\"login ${fingerprint} ${role}\" ${pubkey}"
+
+# TODO: de-duplicate
+echo "$pubkey_line" >> /etc/sshd/authorized_keys
