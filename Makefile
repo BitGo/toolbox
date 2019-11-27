@@ -6,7 +6,7 @@ build:
 
 .PHONY: start
 start: build
-	docker network inspect toolbox || docker create network toolbox
+	docker network inspect toolbox || docker network create toolbox
 	docker inspect -f '{{.State.Running}}' toolbox 2>/dev/null || \
 	docker run \
 		--rm \
