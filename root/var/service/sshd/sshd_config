@@ -15,3 +15,4 @@ IgnoreRhosts yes
 HostbasedAuthentication no
 TCPKeepAlive yes
 AcceptEnv LANG LC_*
+Port 2222

@@ -1,9 +1,16 @@
 #!/bin/bash
+gpg --import /etc/keys/*.pub >/dev/null 2>&1
 
-export CURRENT_USER="$1"
+export LOGIN_FINGERPRINT="$1"
 
-echo "logging in as: $CURRENT_USER"
+login="$( \
+	gpg --list-keys --with-colons "$LOGIN_FINGERPRINT" 2> /dev/null \
+	| grep -E '^uid:.*' \
+	| head -n1 \
+	| sed 's/.*<\(.*\)\@.*>.*/\1/' \
+)";
+export LOGIN_NAME="${login:-$LOGIN_FINGERPRINT}"
 
 # If connected via ssh and not in tmux, attach
 [[ -z "$TMUX" ]] && [ "$SSH_CONNECTION" != "" ] && \
-	tmux new-session -A -t admin -s "$CURRENT_USER" && exit
+	tmux new-session -A -t admin -s "$LOGIN_NAME" && exit

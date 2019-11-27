@@ -1,5 +1,7 @@
 #!/bin/sh
 
+export HOME=/root
+
 mkdir -p /etc/sshd
 
 ssh-keygen -A >/dev/null 2>&1
@@ -8,10 +10,15 @@ touch /etc/sshd/authorized_keys
 
 chown root:root /etc/sshd/authorized_keys
 
-gpg --import /home/admin/keys/*.pub
+gpg --import /etc/keys/*.pub
 
 for fingerprint in ${ADMIN_FINGERPRINTS}; do
 	add-key admin "${fingerprint}"
 done
 
-exec /usr/sbin/sshd -f /var/service/sshd/sshd_config -D 2>&1
+exec /usr/sbin/sshd \
+	-f /var/service/sshd/sshd_config \
+	-D \
+	-e \
+	-o LogLevel=VERBOSE \
+	2>&1

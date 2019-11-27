@@ -1,9 +1,12 @@
+## Primary Targets
+
 .PHONY: build
 build:
 	docker build -t local/toolbox .
 
 .PHONY: start
 start: build
+	docker network inspect toolbox || docker create network toolbox
 	docker inspect -f '{{.State.Running}}' toolbox 2>/dev/null || \
 	docker run \
 		--rm \
@@ -11,10 +14,10 @@ start: build
 		--detach=true \
 		--name toolbox \
 		--env-file="test/test.env" \
-		--volume=${CURDIR}/test/keys:/home/admin/keys \
-		--publish=2222:22 \
+		--volume=${CURDIR}/test/keys:/etc/keys \
+		--network=toolbox \
+		--expose="2222" \
 		local/toolbox
-
 
 .PHONY: stop
 stop:
@@ -24,12 +27,38 @@ stop:
 ssh: start
 	while sleep 1; do ssh -p 2222 admin@localhost; done
 
-
 .PHONY: shell
 shell: start
 	docker exec -it --user=root toolbox bash
 
-
 .PHONY: logs
 logs:
 	docker logs toolbox
+
+.PHONY: test
+test: start build-test
+	docker run \
+		--rm \
+		--hostname=toolbox-test \
+		--name toolbox-test \
+		--network=toolbox \
+		--env="CONTAINER=toolbox" \
+		local/toolbox-test
+
+.PHONY: test-shell
+test-shell: start build-test
+	docker run \
+		--rm \
+		-it \
+		--hostname=toolbox-test \
+		--name toolbox-test \
+		--network=toolbox \
+		--env CONTAINER="toolbox" \
+		local/toolbox-test \
+		bash
+
+## Internal targets
+
+.PHONY: build-test
+build-test:
+	docker build -t local/toolbox-test test/

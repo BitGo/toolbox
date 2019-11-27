@@ -122,6 +122,6 @@ ADD root/var/ /var/
 ADD root/bin/ /bin/
 
 WORKDIR /home/admin
-EXPOSE 22
+EXPOSE 2222
 
 CMD ["/sbin/runit"]
