@@ -57,6 +57,10 @@ test-shell: start build-test
 		local/toolbox-test \
 		bash
 
+update-packages: start
+	docker exec -it --user=root toolbox update-packages
+	docker cp toolbox:/etc/apt/packages.list ${CURDIR}/packages.list
+
 ## Internal targets
 
 .PHONY: build-test

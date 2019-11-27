@@ -75,25 +75,12 @@ ENV LANG=C.UTF-8 \
     HOME="/home/admin"
 
 STOPSIGNAL SIGCONT
+
+ADD packages.list /etc/apt/packages.list
 RUN \
   adduser admin \
   && apt update \
-  && apt install -y \
-    bash \
-    git \
-    gnupg \
-    groff \
-    python3 \
-    python3-pip \
-    rsync \
-    runit \
-    runit-init \
-    ssh \
-    tmux \
-    tzdata \
-    vim \
-    curl \
-    dnsutils \
+  && apt install -y $(cat /etc/apt/packages.list) \
   && git clone --depth 1 --branch ${AWS_CLI_GIT_BRANCH} https://github.com/aws/aws-cli.git /tmp/aws-cli \
   && git -C /tmp/aws-cli checkout ${AWS_CLI_GIT_REF} \
   && cd /tmp/aws-cli \
