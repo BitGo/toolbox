@@ -1,12 +1,31 @@
 #!/bin/bash
 set -e
 
-role="${1?}"
-fingerprint="${2?}"
+user="${1?}"
+login_fingerprint="${2?}"
 
-pubkey=$(gpg --export-ssh-key "${fingerprint}")
+gpg --import /etc/keys/*.pub >/dev/null 2>&1
 
-pubkey_line="command=\"login ${fingerprint} ${role}\" ${pubkey}"
+primary_uid="$( \
+       gpg --list-keys --with-colons "$login_fingerprint" 2> /dev/null \
+       | grep -E '^uid:.*' \
+       | head -n1 \
+)";
+
+login_email="$( echo "${primary_uid}" | sed 's/.*<\(.*\)>.*/\1/' )";
+login_name="$( echo "${primary_uid}" | sed 's/.*<\(.*\)\@.*>.*/\1/' )";
+
+[ "${user}" == "user" ] && \
+	key_args="no-port-forwarding,no-agent-forwarding,no-pty"
+
+[ "${user}" == "admin" ] && \
+	key_command="command=\"admin\","
+
+pubkey=$(gpg --export-ssh-key "${login_fingerprint}")
+key_env="environment=\"LOGIN_FINGERPRINT=${login_fingerprint}\","
+key_env="${key_env}environment=\"LOGIN_EMAIL=${login_email}\","
+key_env="${key_env}environment=\"LOGIN_NAME=${login_name}\","
+pubkey_line="${key_env}${key_command}${key_args} ${pubkey}"
 
 # TODO: de-duplicate
-echo "$pubkey_line" >> /etc/sshd/authorized_keys
+echo "$pubkey_line" >> /etc/sshd/"${user}"_authorized_keys

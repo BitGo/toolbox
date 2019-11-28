@@ -7,10 +7,11 @@ LogLevel DEBUG
 SysLogFacility AUTHPRIV
 LoginGraceTime 120
 PermitRootLogin no
+PermitUserEnvironment yes
 StrictModes yes
 PubkeyAuthentication yes
 PasswordAuthentication no
-AuthorizedKeysFile /etc/sshd/authorized_keys
+AuthorizedKeysFile /etc/sshd/%u_authorized_keys
 IgnoreRhosts yes
 HostbasedAuthentication no
 TCPKeepAlive yes

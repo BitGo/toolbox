@@ -70,15 +70,15 @@ COPY --from=golang /usr/local/bin/kops /usr/local/bin/
 ENV LANG=C.UTF-8 \
     TZ=UTC \
     TERM=xterm-256color \
-    AUTHORIZED_KEYS="" \
     USER="admin" \
     HOME="/home/admin"
 
 STOPSIGNAL SIGCONT
 
 ADD packages.list /etc/apt/packages.list
-RUN \
-  adduser admin \
+RUN  adduser admin \
+  && adduser --shell /usr/sbin/rush user \
+  && usermod -p '*' user \
   && apt update \
   && apt install -y $(cat /etc/apt/packages.list) \
   && git clone --depth 1 --branch ${AWS_CLI_GIT_BRANCH} https://github.com/aws/aws-cli.git /tmp/aws-cli \
