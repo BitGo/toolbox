@@ -7,14 +7,14 @@ rule default
   env - USER LOGNAME HOME PATH LOGIN_FINGERPRINT LOGIN_EMAIL LOGIN_NAME
   fall-through
 
-rule login_fingerprint
-  command ^login_fingerprint$
-  set[0] /bin/login_fingerprint
+rule login-fingerprint
+  command ^login-fingerprint$
+  set[0] /usr/local/bin/login-fingerprint
 
-rule login_email
-  command ^login_email$
-  set[0] /bin/login_email
+rule login-email
+  command ^login-email$
+  set[0] /usr/local/bin/login-email
 
-rule login_name
-  command ^login_name$
-  set[0] /bin/login_name
+rule login-name
+  command ^login-name$
+  set[0] /usr/local/bin/login-name

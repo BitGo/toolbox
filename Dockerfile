@@ -106,7 +106,7 @@ urllib3==1.25.5 --hash=sha256:9c6c593cb28f52075016307fc26b0a0f8e82bc7d1ff19aaaa9
 
 ADD root/etc/ /etc/
 ADD root/var/ /var/
-ADD root/bin/ /bin/
+ADD scripts/ /usr/local/bin/
 
 WORKDIR /home/admin
 EXPOSE 2222
