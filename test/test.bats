@@ -14,18 +14,18 @@ load test_helper
 
 @test "Can resolve fingerprint for valid user key" {
 	enable_key "user1"
-    run ssh_command "user" login_fingerprint
+    run ssh_command "user" login-fingerprint
     echo "${output}" | grep "D16AC0FA2C80E18BDF786C2F41C54D8491451FB1"
 }
 
 @test "Can resolve email for valid user key" {
 	enable_key "user2"
-    run ssh_command "user" login_email
+    run ssh_command "user" login-email
     echo "${output}" | grep "user2@localhost"
 }
 
 @test "Can resolve username for valid admin key" {
 	enable_key "admin2"
-    run ssh_command "user" login_name
+    run ssh_command "user" login-name
     echo "${output}" | grep "admin2"
 }
