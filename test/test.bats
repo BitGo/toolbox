@@ -29,3 +29,10 @@ load test_helper
     run ssh_command "user" login-name
     echo "${output}" | grep "admin2"
 }
+
+@test "Can list current keys" {
+	enable_key "admin1"
+    run ssh_command "user" list-keys
+    echo "${output}" | grep "5725B970DC01905A47487CAAD40D5FBF787CB58B admin1"
+    echo "${output}" | grep "2038CA10DCBBC0488146B2F6E91243068ABF16A1 user2"
+}
