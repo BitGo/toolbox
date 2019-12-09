@@ -36,3 +36,15 @@ load test_helper
     echo "${output}" | grep "5725B970DC01905A47487CAAD40D5FBF787CB58B admin1"
     echo "${output}" | grep "2038CA10DCBBC0488146B2F6E91243068ABF16A1 user2"
 }
+
+@test "Can update scripts repo on the fly" {
+	start_sshd
+	populate_scripts_repo
+	enable_key "user2"
+
+    run ssh_command "user" update-scripts
+    [ "$status" -eq 0 ]
+
+    run ssh_command "user" hello
+    echo "${output}" | grep "hello"
+}

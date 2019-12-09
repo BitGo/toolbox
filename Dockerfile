@@ -71,13 +71,16 @@ ENV LANG=C.UTF-8 \
     TZ=UTC \
     TERM=xterm-256color \
     USER="admin" \
-    HOME="/home/admin"
+    HOME="/home/admin" \
+    SCRIPT_DIR=/home/admin/repos/scripts
 
 STOPSIGNAL SIGCONT
 
 ADD packages.list /etc/apt/packages.list
 RUN  adduser admin \
   && adduser --shell /usr/sbin/rush user \
+  && mkdir -p /home/user/.ssh \
+  && chown -R user:user /home/user \
   && usermod -p '*' user \
   && apt update \
   && apt install -y $(cat /etc/apt/packages.list) \

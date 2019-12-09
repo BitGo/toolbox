@@ -1,0 +1,19 @@
+#!/bin/bash
+set -e
+source /etc/environment
+#TODO add quarantine dir and check PGP keys
+
+script_repo=${SCRIPT_REPO?}
+script_dir=/home/user/repos/scripts
+script_repo_host=$(echo "${SCRIPT_REPO}" | sed 's/.*@\([a-z0-9-]\+\).*/\1/g')
+
+echo "$USER"
+mkdir -p ~/.ssh
+ssh-keyscan "$script_repo_host" > ~/.ssh/known_hosts
+
+[ ! -d "$script_dir" ] \
+&& mkdir -p "$script_dir" \
+&& git clone "$script_repo" "$script_dir"
+
+git -C "$script_dir" pull origin master
+git -C "$script_dir" reset --hard origin/master

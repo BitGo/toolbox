@@ -6,7 +6,7 @@ mkdir -p /etc/sshd
 
 ssh-keygen -A >/dev/null 2>&1
 
-gpg --import /etc/keys/*.pub
+gpg --import /etc/keys/pgp/*.pub
 
 for fingerprint in ${ADMIN_FINGERPRINTS//,/ }; do
 	add-key admin "${fingerprint}"
@@ -15,6 +15,9 @@ done
 for fingerprint in ${USER_FINGERPRINTS//,/ }; do
 	add-key user "${fingerprint}"
 done
+
+cp /etc/keys/ssh/git_ssh.prv /home/user/.ssh/id_ed25519
+chown -R user /home/user/.ssh
 
 exec /usr/sbin/sshd \
 	-f /var/service/sshd/sshd_config \

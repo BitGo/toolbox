@@ -4,7 +4,7 @@ set -e
 user="${1?}"
 login_fingerprint="${2?}"
 
-gpg --import /etc/keys/*.pub >/dev/null 2>&1
+gpg --import /etc/keys/pgp/*.pub >/dev/null 2>&1
 
 primary_uid="$( \
        gpg --list-keys --with-colons "$login_fingerprint" 2> /dev/null \

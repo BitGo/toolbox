@@ -4,8 +4,10 @@ rule default
   acct on
   limits t10r20
   umask 002
-  env - USER LOGNAME HOME PATH LOGIN_FINGERPRINT LOGIN_EMAIL LOGIN_NAME
+  env - USER LOGNAME HOME PATH LOGIN_FINGERPRINT LOGIN_EMAIL LOGIN_NAME SCRIPT_REPO
+  include-security noowner nodir_iwgrp noiwgrp
   fall-through
+  include /home/user/repos/scripts/rush.rc
 
 rule login-fingerprint
   command ^login-fingerprint$
@@ -22,3 +24,7 @@ rule login-name
 rule list-keys
   command ^list-keys$
   set[0] /usr/local/bin/list-keys
+
+rule update-scripts
+  command ^update-scripts$
+  set[0] /usr/local/bin/update-scripts
