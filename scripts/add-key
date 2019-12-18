@@ -28,4 +28,4 @@ key_env="${key_env}environment=\"LOGIN_NAME=${login_name}\","
 pubkey_line="${key_env}${key_command}${key_args} ${pubkey}"
 
 # TODO: de-duplicate
-echo "$pubkey_line" >> /etc/sshd/"${user}"_authorized_keys
+echo "$pubkey_line" >> /etc/ssh/"${user}"_authorized_keys

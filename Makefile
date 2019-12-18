@@ -14,8 +14,8 @@ start: build
 		--detach=true \
 		--name toolbox \
 		--env-file="test/test.env" \
-		--volume=${CURDIR}/test/keys:/etc/keys \
 		--mount type=bind,source=${CURDIR}/test/test.env,target=/etc/environment \
+		--volume=${CURDIR}/test/keys:/etc/keys \
 		--network=toolbox \
 		--expose="2222" \
 		local/toolbox
@@ -55,6 +55,7 @@ test-shell: start build-test
 		--name toolbox-test \
 		--network=toolbox \
 		--env CONTAINER="toolbox" \
+		--volume=${CURDIR}/test/keys:/etc/keys \
 		--env-file="test/test.env" \
 		local/toolbox-test \
 		bash

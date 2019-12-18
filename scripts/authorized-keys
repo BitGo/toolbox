@@ -1,0 +1,30 @@
+#!/bin/bash
+set -e
+
+user=${1?}
+ak_file="/etc/ssh/${user}_authorized_keys"
+ttl=30
+
+if [[ ! -f "$ak_file" || $(find "$ak_file" -mmin +$ttl -print) ]]; then
+
+	[[ -d "/etc/keys/pgp" ]] && \
+	    gpg --import /etc/keys/pgp/*.pub 2> /dev/null
+	[ -d "/home/user/repos/keys/pgp" ] && \
+	    gpg --import /home/user/repos/keys/pgp/* 2> /dev/null
+
+	if [ "$user" == "admin" ]; then
+    	for fingerprint in ${ADMIN_FINGERPRINTS//,/ }; do
+    		add-key admin "${fingerprint}"
+    		add-key user "${fingerprint}"
+    	done
+	fi
+
+	if [ "$user" == "user" ]; then
+    	for fingerprint in ${USER_FINGERPRINTS//,/ }; do
+    		add-key user "${fingerprint}"
+    	done
+	fi
+
+fi
+
+cat "$ak_file"

@@ -11,7 +11,7 @@ PermitUserEnvironment yes
 StrictModes yes
 PubkeyAuthentication yes
 PasswordAuthentication no
-AuthorizedKeysFile /etc/sshd/%u_authorized_keys
+AuthorizedKeysCommand /usr/local/bin/authorized-keys %u
 IgnoreRhosts yes
 HostbasedAuthentication no
 TCPKeepAlive yes

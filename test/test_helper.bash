@@ -23,8 +23,6 @@ teardown(){
 start_sshd(){
 	sudo mkdir -p /git/.ssh
 	sudo cp /home/admin/keys/ssh/git_ssh.pub  /git/.ssh/authorized_keys
-	sudo git init --bare /git/scripts.git
-	sudo chown -R git:git /git
 	sudo /usr/sbin/sshd -e -p 22 >/dev/null 2>&1
 
 	mkdir -p ~/.ssh
@@ -33,25 +31,42 @@ start_sshd(){
 	sudo chown -R admin:admin ~/.ssh
 }
 
+populate_repos(){
+	populate_scripts_repo
+	populate_keys_repo
+}
+
 populate_scripts_repo(){
-	script_dir=$(mktemp -d -p /dev/shm)
-	git clone "${SCRIPT_REPO}" "${script_dir}"
-	cat <<-EOF > "${script_dir}/hello"
+	repo_dir=$(mktemp -d -p /dev/shm)
+	sudo git init --bare /git/scripts.git
+	sudo chown -R git:git /git
+	git clone "${SCRIPT_REPO}" "${repo_dir}"
+	cat <<-EOF > "${repo_dir}/hello"
 		#!/bin/bash
 		echo "hello"
 	EOF
-	chmod +x "${script_dir}/hello"
-	cat <<-EOF > "${script_dir}/rush.rc"
+	chmod +x "${repo_dir}/hello"
+	cat <<-EOF > "${repo_dir}/rush.rc"
 		rule hello
 		  command ^hello$
 		  set[0] /home/user/repos/scripts/hello
 	EOF
-	git -C "${script_dir}" add .
-	git -C "${script_dir}" commit -m "add hello script"
-	git -C "${script_dir}" push origin master
+	git -C "${repo_dir}" add .
+	git -C "${repo_dir}" commit -m "add hello script"
+	git -C "${repo_dir}" push origin master
 }
 
+populate_keys_repo(){
+	repo_dir=$(mktemp -d -p /dev/shm)
+	sudo git init --bare /git/keys.git
+	sudo chown -R git:git /git
+	git clone "${KEY_REPO}" "${repo_dir}"
 
+	cp -R /etc/keys/* "${repo_dir}/"
+	git -C "${repo_dir}" add .
+	git -C "${repo_dir}" commit -m "add keys"
+	git -C "${repo_dir}" push origin master
+}
 
 enable_key(){
 	name=${1?}

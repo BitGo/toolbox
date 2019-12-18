@@ -42,7 +42,19 @@ load test_helper
 	populate_scripts_repo
 	enable_key "user2"
 
-    run ssh_command "user" update-scripts
+    run ssh_command "user" sync-repos
+    [ "$status" -eq 0 ]
+
+    run ssh_command "user" hello
+    echo "${output}" | grep "hello"
+}
+
+@test "Can update keys repo on the fly" {
+	start_sshd
+	populate_keys_repo
+	enable_key "user2"
+
+    run ssh_command "user" sync-repos
     [ "$status" -eq 0 ]
 
     run ssh_command "user" hello
