@@ -12,6 +12,7 @@ StrictModes yes
 PubkeyAuthentication yes
 PasswordAuthentication no
 AuthorizedKeysCommand /usr/local/bin/authorized-keys %u
+AuthorizedKeysCommandUser user
 IgnoreRhosts yes
 HostbasedAuthentication no
 TCPKeepAlive yes

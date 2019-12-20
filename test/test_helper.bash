@@ -4,7 +4,6 @@ setup(){
 	GNUPGHOME="$(mktemp -d -p /dev/shm/)"; export GNUPGHOME
 	GPG_AGENT_INFO="${GNUPGHOME}/S.gpg-agent"; export GPG_AGENT_INFO
 	SSH_AUTH_SOCK="${GNUPGHOME}/S.gpg-agent.ssh"; export SSH_AUTH_SOCK
-	SCRIPT_REPO="git@toolbox-test:scripts.git"
 	gpg-agent --homedir "${GNUPGHOME}" --disable-scdaemon --daemon \
 		>/dev/null 2>&1
 

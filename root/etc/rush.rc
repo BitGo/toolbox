@@ -4,7 +4,7 @@ rule default
   acct on
   limits t10r20
   umask 002
-  env - USER LOGNAME HOME PATH LOGIN_FINGERPRINT LOGIN_EMAIL LOGIN_NAME SCRIPT_REPO
+  env - USER LOGNAME HOME PATH LOGIN_FINGERPRINT LOGIN_EMAIL LOGIN_NAME SCRIPT_REPO KEY_REPO
   include-security noowner nodir_iwgrp noiwgrp
   fall-through
   include /home/user/repos/scripts/rush.rc

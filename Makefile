@@ -44,6 +44,8 @@ test: start build-test
 		--name toolbox-test \
 		--network=toolbox \
 		--env="CONTAINER=toolbox" \
+		--volume=${CURDIR}/test/keys:/etc/keys \
+		--env-file="test/test.env" \
 		local/toolbox-test
 
 .PHONY: test-shell

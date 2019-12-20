@@ -39,7 +39,7 @@ load test_helper
 
 @test "Can update scripts repo on the fly" {
 	start_sshd
-	populate_scripts_repo
+	populate_repos
 	enable_key "user2"
 
     run ssh_command "user" sync-repos
@@ -51,7 +51,7 @@ load test_helper
 
 @test "Can update keys repo on the fly" {
 	start_sshd
-	populate_keys_repo
+	populate_repos
 	enable_key "user2"
 
     run ssh_command "user" sync-repos
