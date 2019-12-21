@@ -39,8 +39,9 @@ load test_helper
 
 @test "Can update scripts repo on the fly" {
 	start_sshd
-	populate_repos
 	enable_key "user2"
+	set_signing_key "user2"
+	populate_repos
 
     run ssh_command "user" sync-repos
     [ "$status" -eq 0 ]
@@ -51,12 +52,35 @@ load test_helper
 
 @test "Can update keys repo on the fly" {
 	start_sshd
-	populate_repos
+	set_signing_key "user2"
 	enable_key "user2"
+	populate_repos
 
     run ssh_command "user" sync-repos
     [ "$status" -eq 0 ]
 
     run ssh_command "user" hello
     echo "${output}" | grep "hello"
+}
+
+@test "Will refuse commits not signed by admin" {
+	start_sshd
+	enable_key "user2"
+	set_signing_key "user2"
+	populate_repos
+
+    run ssh_command "user" sync-repos
+    [ "$status" -eq 1 ]
+
+}
+
+@test "Will accept commits signed by an admin" {
+	start_sshd
+	enable_key "admin2"
+	set_signing_key "admin2"
+	populate_repos
+
+    run ssh_command "user" sync-repos
+    [ "$status" -eq 0 ]
+
 }

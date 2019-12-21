@@ -5,25 +5,43 @@ source /etc/environment
 
 script_repo=${SCRIPT_REPO?}
 script_dir=/home/user/repos/scripts
+temp_script_dir=$(mktemp -d -p /dev/shm)
 script_repo_host=$(echo "${SCRIPT_REPO}" | sed 's/.*@\([a-z0-9-]\+\).*/\1/g')
 key_repo=${KEY_REPO?}
 key_dir=/home/user/repos/keys
+temp_key_dir=$(mktemp -d -p /dev/shm)
 key_repo_host=$(echo "${KEY_REPO}" | sed 's/.*@\([a-z0-9-]\+\).*/\1/g')
 
 echo "$USER"
 mkdir -p ~/.ssh
 ssh-keyscan "$script_repo_host" > ~/.ssh/known_hosts
 
-[ ! -d "$script_dir" ] \
-&& mkdir -p "$script_dir" \
-&& git clone "$script_repo" "$script_dir"
+git clone "$script_repo" "$temp_script_dir"
+git -C "$temp_script_dir" pull origin master
+git -C "$temp_script_dir" reset --hard origin/master
+signer=$(
+	git \
+		-C "$temp_script_dir" \
+		verify-commit --raw HEAD 2>&1 \
+	| grep GOODSIG \
+	| awk '{ print $3 }' \
+)
+[[ "$ADMIN_FINGERPRINTS" =~ $signer ]] || \
+	{ echo "Head must be signed by admin"; exit 1; }
+cp -R "$temp_script_dir"/* "$script_dir"/
 
-git -C "$script_dir" pull origin master
-git -C "$script_dir" reset --hard origin/master
+git clone "$key_repo" "$temp_key_dir"
+git -C "$temp_key_dir" pull origin master
+git -C "$temp_key_dir" reset --hard origin/master
+signer=$(
+	git \
+		-C "$temp_key_dir" \
+		verify-commit --raw HEAD 2>&1 \
+	| grep GOODSIG \
+	| awk '{ print $3 }' \
+)
+[[ "$ADMIN_FINGERPRINTS" =~ $signer ]] || \
+	{ echo "Head must be signed by admin"; exit 1; }
+cp -R "$temp_key_dir"/* "$key_dir"/
 
-[ ! -d "$key_dir" ] \
-&& mkdir -p "$key_dir" \
-&& git clone "$key_repo" "$key_dir"
 
-git -C "$key_dir" pull origin master
-git -C "$key_dir" reset --hard origin/master

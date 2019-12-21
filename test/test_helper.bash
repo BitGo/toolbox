@@ -35,6 +35,23 @@ populate_repos(){
 	populate_keys_repo
 }
 
+
+set_signing_key(){
+	name="${1?}"
+	gpg --import /home/admin/keys/pgp/"${name}".pub >/dev/null 2>&1
+	gpg --import /home/admin/keys/pgp/"${name}".prv >/dev/null 2>&1
+	fingerprint=$(
+		gpg \
+			--list-keys \
+			--fingerprint \
+			--with-colons \
+		| sed -E -n -e 's/^fpr:::::::::([0-9A-F]+):$/\1/p' \
+		| head -n1
+	)
+	git config --global commit.gpgsign true
+	git config --global user.signingkey "$fingerprint"
+}
+
 populate_scripts_repo(){
 	repo_dir=$(mktemp -d -p /dev/shm)
 	sudo git init --bare /git/scripts.git
