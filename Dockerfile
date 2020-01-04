@@ -14,6 +14,7 @@ ARG TERRAFORM_GIT_REF="4ebf9082cde695a4bbc908cbf373a2c8139fe534"
 ARG TERRAFORM_HELM_GIT_REF="0ae76f659dcfdc88c0fa70370b0fe1e126177226"
 ARG TERRAFORM_KUBERNETES_GIT_REF="fc2b788bafc2f52ac60ef5704d152ef12871537b"
 ARG KOPS_GIT_REF="d5078612f641d89190edb39f3fedcee2548ba68f"
+ARG K9S_GIT_REF="1a9a83b34cdd0c9b4e793ed6b4b5c16ea1a949a0"
 
 RUN apt update && apt install -y bash git make
 
@@ -24,7 +25,9 @@ github.com/helm/helm k8s.io/helm ${HELM_GIT_REF} \n\
 github.com/kubernetes/kops  k8s.io/kops ${KOPS_GIT_REF} \n\
 github.com/hashicorp/terraform github.com/hashicorp/terraform ${TERRAFORM_GIT_REF} \n\
 github.com/terraform-providers/terraform-provider-helm github.com/terraform-providers/terraform-provider-helm ${TERRAFORM_HELM_GIT_REF} \n\
-github.com/terraform-providers/terraform-provider-kubernetes github.com/terraform-providers/terraform-provider-kubernetes ${TERRAFORM_KUBERNETES_GIT_REF}\n" \
+github.com/terraform-providers/terraform-provider-kubernetes github.com/terraform-providers/terraform-provider-kubernetes ${TERRAFORM_KUBERNETES_GIT_REF}\n \
+github.com/derailed/k9s github.com/derailed/k8s ${K9S_GIT_REF}\n \
+" \
 > /go/src/repos
 
 RUN echo ' \
@@ -52,6 +55,8 @@ RUN go build -o /usr/local/bin/terraform-provider-kubernetes \
     github.com/terraform-providers/terraform-provider-kubernetes
 RUN go build -o /usr/local/bin/terraform-provider-helm \
     github.com/terraform-providers/terraform-provider-helm
+RUN go build -o /usr/local/bin/k9s \
+    github.com/derailed/k8s
 
 FROM debian:buster@${DEBIAN_IMAGE_REF}
 ARG AWS_CLI_GIT_BRANCH="1.16.242"
@@ -66,6 +71,7 @@ COPY --from=golang /usr/local/bin/kubectl /usr/local/bin/
 COPY --from=golang /usr/local/bin/helm /usr/local/bin/
 COPY --from=golang /usr/local/bin/tiller /usr/local/bin/
 COPY --from=golang /usr/local/bin/kops /usr/local/bin/
+COPY --from=golang /usr/local/bin/k9s /usr/local/bin/
 
 ENV LANG=C.UTF-8 \
     TZ=UTC \
