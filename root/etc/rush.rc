@@ -1,7 +1,7 @@
 debug 1
 
 rule default
-  acct on
+  acct off
   limits t10r20
   umask 002
   env - USER LOGNAME HOME PATH LOGIN_FINGERPRINT LOGIN_EMAIL LOGIN_NAME SCRIPT_REPO KEY_REPO
