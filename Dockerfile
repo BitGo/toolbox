@@ -47,6 +47,7 @@ RUN go build -o /usr/local/bin/glide github.com/Masterminds/glide
 RUN go build -o /usr/local/bin/kubectl k8s.io/kubernetes/cmd/kubectl
 RUN go build -o /usr/local/bin/terraform github.com/hashicorp/terraform
 RUN cd /go/src/k8s.io/helm \
+    && go get vbom.ml/util \
     && make bootstrap build \
     && cp bin/helm /usr/local/bin/ \
     && cp bin/tiller /usr/local/bin/
