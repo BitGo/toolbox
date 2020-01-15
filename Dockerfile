@@ -77,8 +77,8 @@ ENV LANG=C.UTF-8 \
     TZ=UTC \
     TERM=xterm-256color \
     AUTHORIZED_KEYS="" \
-    USER="build" \
-    HOME="/home/build"
+    USER="admin" \
+    HOME="/home/admin"
 
 STOPSIGNAL SIGCONT
 RUN \
@@ -127,7 +127,7 @@ ADD etc/ /etc/
 ADD var/ /var/
 ADD bin/ /bin/
 
-WORKDIR /home/build
+WORKDIR /home/admin
 EXPOSE 22
 
 CMD ["/sbin/runit"]
