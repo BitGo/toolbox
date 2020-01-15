@@ -14,6 +14,7 @@ ARG TERRAFORM_GIT_REF="4ebf9082cde695a4bbc908cbf373a2c8139fe534"
 ARG TERRAFORM_HELM_GIT_REF="0ae76f659dcfdc88c0fa70370b0fe1e126177226"
 ARG TERRAFORM_KUBERNETES_GIT_REF="fc2b788bafc2f52ac60ef5704d152ef12871537b"
 ARG KOPS_GIT_REF="d5078612f641d89190edb39f3fedcee2548ba68f"
+ARG VELERO_GIT_REF="5d008491bbf681658d3e372da1a9d3a21ca4c03c"
 
 RUN apt update && apt install -y bash git make
 
@@ -22,6 +23,7 @@ github.com/Masterminds/glide github.com/Masterminds/glide ${GLIDE_GIT_REF} \n\
 github.com/kubernetes/kubernetes k8s.io/kubernetes ${KUBERNETES_GIT_REF} \n\
 github.com/helm/helm k8s.io/helm ${HELM_GIT_REF} \n\
 github.com/kubernetes/kops  k8s.io/kops ${KOPS_GIT_REF} \n\
+github.com/vmware-tanzu/velero github.com/vmware-tanzu/velero ${VELERO_GIT_REF} \n\
 github.com/hashicorp/terraform github.com/hashicorp/terraform ${TERRAFORM_GIT_REF} \n\
 github.com/terraform-providers/terraform-provider-helm github.com/terraform-providers/terraform-provider-helm ${TERRAFORM_HELM_GIT_REF} \n\
 github.com/terraform-providers/terraform-provider-kubernetes github.com/terraform-providers/terraform-provider-kubernetes ${TERRAFORM_KUBERNETES_GIT_REF}\n" \
@@ -45,6 +47,7 @@ RUN go build -o /usr/local/bin/glide github.com/Masterminds/glide
 RUN go build -o /usr/local/bin/kubectl k8s.io/kubernetes/cmd/kubectl
 RUN go build -o /usr/local/bin/terraform github.com/hashicorp/terraform
 RUN cd /go/src/k8s.io/helm \
+    && go get vbom.ml/util \
     && make bootstrap build \
     && cp bin/helm /usr/local/bin/ \
     && cp bin/tiller /usr/local/bin/
@@ -52,6 +55,8 @@ RUN go build -o /usr/local/bin/terraform-provider-kubernetes \
     github.com/terraform-providers/terraform-provider-kubernetes
 RUN go build -o /usr/local/bin/terraform-provider-helm \
     github.com/terraform-providers/terraform-provider-helm
+RUN go build -o /usr/local/bin/velero \
+    github.com/vmware-tanzu/velero/cmd/velero
 
 FROM debian:buster@${DEBIAN_IMAGE_REF}
 ARG AWS_CLI_GIT_BRANCH="1.16.242"
@@ -66,6 +71,7 @@ COPY --from=golang /usr/local/bin/kubectl /usr/local/bin/
 COPY --from=golang /usr/local/bin/helm /usr/local/bin/
 COPY --from=golang /usr/local/bin/tiller /usr/local/bin/
 COPY --from=golang /usr/local/bin/kops /usr/local/bin/
+COPY --from=golang /usr/local/bin/velero /usr/local/bin/
 
 ENV LANG=C.UTF-8 \
     TZ=UTC \
