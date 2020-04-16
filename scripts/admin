@@ -1,0 +1,6 @@
+#!/bin/bash
+
+[[ -z "$TMUX" ]] \
+&& [ "$SSH_CONNECTION" != "" ] \
+&& tmux new-session -A -t admin -s "${LOGIN_FINGERPRINT}" \
+&& exit

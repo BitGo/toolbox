@@ -76,30 +76,19 @@ COPY --from=golang /usr/local/bin/velero /usr/local/bin/
 ENV LANG=C.UTF-8 \
     TZ=UTC \
     TERM=xterm-256color \
-    AUTHORIZED_KEYS="" \
     USER="admin" \
-    HOME="/home/admin"
+    HOME="/home/admin" \
 
 STOPSIGNAL SIGCONT
-RUN \
-  adduser admin \
+
+ADD packages.list /etc/apt/packages.list
+RUN  adduser admin \
+  && adduser --shell /usr/sbin/rush user \
+  && mkdir -p /home/user/.ssh \
+  && chown -R user:user /home/user \
+  && usermod -p '*' user \
   && apt update \
-  && apt install -y \
-    bash \
-    git \
-    gnupg \
-    groff \
-    python3 \
-    python3-pip \
-    rsync \
-    runit \
-    runit-init \
-    ssh \
-    tmux \
-    tzdata \
-    vim \
-    curl \
-    dnsutils \
+  && apt install -y $(cat /etc/apt/packages.list) \
   && git clone --depth 1 --branch ${AWS_CLI_GIT_BRANCH} https://github.com/aws/aws-cli.git /tmp/aws-cli \
   && git -C /tmp/aws-cli checkout ${AWS_CLI_GIT_REF} \
   && cd /tmp/aws-cli \
@@ -123,11 +112,11 @@ urllib3==1.25.5 --hash=sha256:9c6c593cb28f52075016307fc26b0a0f8e82bc7d1ff19aaaa9
   && rm -rf /tmp/* /var/cache/apk/* /etc/motd \
   && mkdir /run/sshd
 
-ADD etc/ /etc/
-ADD var/ /var/
-ADD bin/ /bin/
+ADD root/etc/ /etc/
+ADD root/var/ /var/
+ADD scripts/ /usr/local/bin/
 
 WORKDIR /home/admin
-EXPOSE 22
+EXPOSE 2222
 
 CMD ["/sbin/runit"]

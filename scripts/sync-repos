@@ -1,0 +1,52 @@
+#!/bin/bash
+set -e
+source /etc/environment
+
+script_repo=${SCRIPT_REPO?}
+script_dir=/home/user/repos/scripts
+temp_script_dir=$(mktemp -d -p /dev/shm)
+script_repo_host=$(echo "${SCRIPT_REPO}" | sed 's/.*@\([a-z0-9-]\+\).*/\1/g')
+key_repo=${KEY_REPO?}
+key_dir=/home/user/repos/keys
+temp_key_dir=$(mktemp -d -p /dev/shm)
+key_repo_host=$(echo "${KEY_REPO}" | sed 's/.*@\([a-z0-9-]\+\).*/\1/g')
+
+gpg --import /etc/keys/pgp/*.pub
+
+echo "$USER"
+mkdir -p ~/.ssh
+ssh-keyscan "$script_repo_host" > ~/.ssh/known_hosts
+
+git clone "$script_repo" "$temp_script_dir"
+git -C "$temp_script_dir" pull origin master
+git -C "$temp_script_dir" reset --hard origin/master
+signer=$(
+	git \
+		-C "$temp_script_dir" \
+		verify-commit --raw HEAD 2>&1 \
+	| grep VALIDSIG \
+	| awk '{ print $12 }' \
+)
+[[ "$signer" ]] || (>&2 echo "Error: Unknown signer on scripts repo"; exit 1)
+echo "Signer is $signer"
+[[ "$ADMIN_FINGERPRINTS" =~ $signer ]] || \
+	(>&2 echo "Error: Head must be signed by admin"; exit 1 )
+mkdir -p "$script_dir"
+cp -R "$temp_script_dir"/* "$script_dir"/
+
+git clone "$key_repo" "$temp_key_dir"
+git -C "$temp_key_dir" pull origin master
+git -C "$temp_key_dir" reset --hard origin/master
+signer=$(
+	git \
+		-C "$temp_key_dir" \
+		verify-commit --raw HEAD 2>&1 \
+	| grep VALIDSIG \
+	| awk '{ print $12 }' \
+)
+[[ "$signer" ]] || (>&2 echo "Error: Unknown signer on keys repo"; exit 1)
+echo "Signer is $signer"
+[[ "$ADMIN_FINGERPRINTS" =~ $signer ]] || \
+	(>&2 echo "Head must be signed by admin"; exit 1 )
+mkdir -p "$key_dir"
+cp -R "$temp_key_dir"/* "$key_dir"/

@@ -1,0 +1,30 @@
+debug 1
+
+rule default
+  acct off
+  limits t10r20
+  umask 002
+  env - USER LOGNAME HOME PATH LOGIN_FINGERPRINT LOGIN_EMAIL LOGIN_NAME SCRIPT_REPO KEY_REPO
+  include-security noowner nodir_iwgrp noiwgrp
+  fall-through
+  include /home/user/repos/scripts/rush.rc
+
+rule login-fingerprint
+  command ^login-fingerprint$
+  set[0] /usr/local/bin/login-fingerprint
+
+rule login-email
+  command ^login-email$
+  set[0] /usr/local/bin/login-email
+
+rule login-name
+  command ^login-name$
+  set[0] /usr/local/bin/login-name
+
+rule list-keys
+  command ^list-keys$
+  set[0] /usr/local/bin/list-keys
+
+rule sync-repos
+  command ^sync-repos$
+  set[0] /usr/local/bin/sync-repos

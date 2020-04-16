@@ -7,11 +7,14 @@ LogLevel DEBUG
 SysLogFacility AUTHPRIV
 LoginGraceTime 120
 PermitRootLogin no
+PermitUserEnvironment yes
 StrictModes yes
 PubkeyAuthentication yes
 PasswordAuthentication no
-AuthorizedKeysFile /etc/sshd/authorized_keys
+AuthorizedKeysCommand /usr/local/bin/authorized-keys %u
+AuthorizedKeysCommandUser user
 IgnoreRhosts yes
 HostbasedAuthentication no
 TCPKeepAlive yes
 AcceptEnv LANG LC_*
+Port 2222

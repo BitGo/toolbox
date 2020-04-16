@@ -1,0 +1,8 @@
+#!/bin/bash
+set -e
+
+for account in admin user; do
+    cat /etc/ssh/${account}_authorized_keys \
+    | sed "s/.*FINGERPRINT=\([A-Z0-9]\+\)\".*NAME=\([a-z0-9]\+\).*/${account}\t\1\t\2/g" \
+    | expand -t 6,40,41;
+done
