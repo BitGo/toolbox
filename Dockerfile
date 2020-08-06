@@ -123,9 +123,13 @@ urllib3==1.25.5 --hash=sha256:9c6c593cb28f52075016307fc26b0a0f8e82bc7d1ff19aaaa9
   && rm -rf /tmp/* /var/cache/apk/* /etc/motd \
   && mkdir /run/sshd
 
+ARG AUTHORIZED_KEYS=""
+
 ADD etc/ /etc/
 ADD var/ /var/
 ADD bin/ /bin/
+
+RUN echo "${AUTHORIZED_KEYS} > /etc/sshd/authorized_keys"
 
 WORKDIR /home/admin
 EXPOSE 22
