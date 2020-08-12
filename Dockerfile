@@ -15,6 +15,7 @@ ARG TERRAFORM_HELM_GIT_REF="0ae76f659dcfdc88c0fa70370b0fe1e126177226"
 ARG TERRAFORM_KUBERNETES_GIT_REF="fc2b788bafc2f52ac60ef5704d152ef12871537b"
 ARG KOPS_GIT_REF="d5078612f641d89190edb39f3fedcee2548ba68f"
 ARG VELERO_GIT_REF="5d008491bbf681658d3e372da1a9d3a21ca4c03c"
+ARG SOPS_GIT_REF="647560046fef85d8ba1800ed63528a364538391f"
 
 RUN apt update && apt install -y bash git make
 
@@ -26,7 +27,8 @@ github.com/kubernetes/kops  k8s.io/kops ${KOPS_GIT_REF} \n\
 github.com/vmware-tanzu/velero github.com/vmware-tanzu/velero ${VELERO_GIT_REF} \n\
 github.com/hashicorp/terraform github.com/hashicorp/terraform ${TERRAFORM_GIT_REF} \n\
 github.com/terraform-providers/terraform-provider-helm github.com/terraform-providers/terraform-provider-helm ${TERRAFORM_HELM_GIT_REF} \n\
-github.com/terraform-providers/terraform-provider-kubernetes github.com/terraform-providers/terraform-provider-kubernetes ${TERRAFORM_KUBERNETES_GIT_REF}\n" \
+github.com/terraform-providers/terraform-provider-kubernetes github.com/terraform-providers/terraform-provider-kubernetes ${TERRAFORM_KUBERNETES_GIT_REF} \n\
+github.com/mozilla/sops go.mozilla.org/sops/v3 ${SOPS_GIT_REF}\n" \
 > /go/src/repos
 
 RUN echo ' \
@@ -57,6 +59,9 @@ RUN go build -o /usr/local/bin/terraform-provider-helm \
     github.com/terraform-providers/terraform-provider-helm
 RUN go build -o /usr/local/bin/velero \
     github.com/vmware-tanzu/velero/cmd/velero
+RUN cd /go/src/go.mozilla.org/sops/v3 \
+    && make install \
+    && cp -v /go/bin/sops /usr/local/bin/
 
 FROM debian:buster@${DEBIAN_IMAGE_REF}
 ARG AWS_CLI_GIT_BRANCH="1.16.242"
@@ -72,6 +77,7 @@ COPY --from=golang /usr/local/bin/helm /usr/local/bin/
 COPY --from=golang /usr/local/bin/tiller /usr/local/bin/
 COPY --from=golang /usr/local/bin/kops /usr/local/bin/
 COPY --from=golang /usr/local/bin/velero /usr/local/bin/
+COPY --from=golang /usr/local/bin/sops /usr/local/bin/
 
 ENV LANG=C.UTF-8 \
     TZ=UTC \
