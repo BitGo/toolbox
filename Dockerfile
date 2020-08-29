@@ -1,7 +1,10 @@
-ARG GOLANG_IMAGE_REF=sha256:36c384d8593f8989b7a50bebf9569c9f6a43a6881baa8a248a84251d2ca17ddb
-ARG DEBIAN_IMAGE_REF=sha256:9d2b250af5748cf8fb2c7e9a14aab830c251daa3f8f3bc787bd4a3e8c586f39a
+# 1.13.2-buster
+ARG GOLANG_IMAGE_REF=36c384d8593f8989b7a50bebf9569c9f6a43a6881baa8a248a84251d2ca17ddb
 
-FROM golang:1.13.2-buster@${GOLANG_IMAGE_REF} as golang
+# buster
+ARG DEBIAN_IMAGE_REF=9d2b250af5748cf8fb2c7e9a14aab830c251daa3f8f3bc787bd4a3e8c586f39a
+
+FROM golang@sha256:${GOLANG_IMAGE_REF} as golang
 ARG FIXUID_GIT_REF="0ec93d22e52bde5b7326e84cb62fd26a3d20cead"
 ARG TOML_GIT_REF="3012a1dbe2e4bd1391d42b32f0577cb7bbc7f005"
 ARG OZZOCONFIG_GIT_REF="0ff174cf5aa6480026e0b40c14fd9cfb61c4abf6"
@@ -58,7 +61,7 @@ RUN go build -o /usr/local/bin/terraform-provider-helm \
 RUN go build -o /usr/local/bin/velero \
     github.com/vmware-tanzu/velero/cmd/velero
 
-FROM debian:buster@${DEBIAN_IMAGE_REF}
+FROM debian@sha256:${DEBIAN_IMAGE_REF}
 ARG AWS_CLI_GIT_BRANCH="1.16.242"
 ARG AWS_CLI_GIT_REF="a031cf1ea60e6a810a5f2127f2c1ea13c39f549d"
 
